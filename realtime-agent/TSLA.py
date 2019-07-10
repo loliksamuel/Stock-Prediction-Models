@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import json
+import os
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from datetime import datetime
@@ -9,6 +10,25 @@ import matplotlib.pyplot as plt
 
 
 def test_run():
+    # Define a date range
+    start_date='2018-05-21'
+    end_date  ='2019-05-26'
+    dates=pd.date_range(start_date,end_date)
+    print("dates=",dates)
+    print("date[0]=",dates[0])
+
+    # Choose stock symbols to read
+    symbols = ['TSLA', 'GOOG', 'FB']  # SPY will be added in get_data()
+
+    # Get stock data
+    df = get_data(symbols, dates)
+
+    # Slice and plot
+    plot_selected(df, symbols, start_date, end_date)
+
+
+
+
     df_TSLA = pd.read_csv('TSLA.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High","Low"], na_values=["nan"])
     df_GOOG = pd.read_csv('GOOG.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High","Low"], na_values=["nan"])
     print(df_TSLA.head())
@@ -18,17 +38,15 @@ def test_run():
     plt.plot(df_GOOG['Close'], label='goog close')
     plt.plot(df_GOOG['High' ], label='goog high')
     plt.title('tesla vs google')
+    plt.xlabel('date')
+    plt.ylabel('price')
    # plt.axes([2,3,4])
     #df_crosscorrelated.plot(x='Date',y=['Close','ma7','ma14','ma25'],ax=ax)
 
     plt.legend()
     plt.show()
 
-    start_date='2018-05-21'
-    end_date  ='2018-05-26'
-    dates=pd.date_range(start_date,end_date)
-    print("dates=",dates)
-    print("date[0]=",dates[0])
+
     df_DATES = pd.DataFrame(index=dates)
 
     print ("df_dates=")
@@ -40,9 +58,53 @@ def test_run():
     # print (df_j1)
 
     print ("df_join=")
+    # df_TSLA = df_TSLA.rename(columns={'High':'H_TSLA'})
     df_j2 = df_DATES.join(df_TSLA, how='inner')
     df_j2  = df_j2.dropna()
     print (df_j2)
+
+def plot_selected(df, columns, start_index, end_index):
+    """Plot the desired columns over index values in the given range."""
+    # TODO: Your code here
+    # Note: DO NOT modify anything else!
+    #df = df[columns][start_index:end_index]
+    df.ix[start_index:end_index, columns]
+    df = normalize(df)
+    plot_data(df)
+
+# normalize to first row
+def normalize(df):
+    return df/df.ix[0,:]
+
+def symbol_to_path(symbol, base_dir=""):
+    """Return CSV file path given ticker symbol."""
+    return os.path.join(base_dir, "{}.csv".format(str(symbol)))
+
+
+def plot_data(df, title="normalized Stock prices"):
+    """Plot stock prices with a custom title and meaningful axis labels."""
+    ax = df.plot(title=title, fontsize=12)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price")
+    plt.show()
+
+def get_data(symbols, dates):
+    """Read stock data (adjusted close) for given symbols from CSV files."""
+    df = pd.DataFrame(index=dates)
+    if 'GOOG' not in symbols:  # add GOOG for reference, if absent
+        symbols.insert(0, 'GOOG')
+
+    for symbol in symbols:
+        df_temp = pd.read_csv(symbol_to_path(symbol), index_col='Date',
+                              parse_dates=True, usecols=['Date', 'Adj Close'], na_values=['nan'])
+
+        df_temp = df_temp.rename(columns={'Adj Close': symbol})
+        print(df_temp.head())
+        df = df.join(df_temp)
+        if symbol == 'GOOG':  # drop dates GOOG did not trade
+            df = df.dropna(subset=["GOOG"])
+
+    return df
 
 
 
