@@ -9,15 +9,21 @@ import matplotlib.pyplot as plt
 
 
 def test_run():
-    df_TSLA = pd.read_csv('TSLA.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High"], na_values=["nan"])
-    df_GOOG = pd.read_csv('GOOG.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High"], na_values=["nan"])
+    df_TSLA = pd.read_csv('TSLA.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High","Low"], na_values=["nan"])
+    df_GOOG = pd.read_csv('GOOG.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High","Low"], na_values=["nan"])
     print(df_TSLA.head())
     print(df_GOOG.head())
-    plt.plot(df_TSLA['Close'])
-    plt.plot(df_TSLA['High'])
-    plt.plot(df_GOOG['Close'])
+    plt.plot(df_TSLA['Low'  ], label='tsla low')
+    plt.plot(df_TSLA['High' ], label='tsla high')
+    plt.plot(df_GOOG['Close'], label='goog close')
+    plt.plot(df_GOOG['High' ], label='goog high')
+    plt.title('tesla vs google')
+   # plt.axes([2,3,4])
+    #df_crosscorrelated.plot(x='Date',y=['Close','ma7','ma14','ma25'],ax=ax)
+
+    plt.legend()
     plt.show()
-    plt.show()
+
     start_date='2018-05-21'
     end_date  ='2018-05-26'
     dates=pd.date_range(start_date,end_date)
@@ -27,13 +33,14 @@ def test_run():
 
     print ("df_dates=")
     print (df_DATES)
-
+    #
     # print ("df_join=")
-    # df_j1 = df_TSLA.join(df_GOOG)
+    # df_TSLA = df_TSLA.rename(columns={'High':'H_TSLA'})
+    # df_j1 = df_TSLA.join(df_GOOG, how='inner')
     # print (df_j1)
 
     print ("df_join=")
-    df_j2 = df_DATES.join(df_TSLA)
+    df_j2 = df_DATES.join(df_TSLA, how='inner')
     df_j2  = df_j2.dropna()
     print (df_j2)
 
