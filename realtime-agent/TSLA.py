@@ -8,6 +8,37 @@ import matplotlib.pyplot as plt
 
 
 
+def test_run():
+    df_TSLA = pd.read_csv('TSLA.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High"], na_values=["nan"])
+    df_GOOG = pd.read_csv('GOOG.csv', index_col="Date", parse_dates=True, usecols=["Date","Close","High"], na_values=["nan"])
+    print(df_TSLA.head())
+    print(df_GOOG.head())
+    plt.plot(df_TSLA['Close'])
+    plt.plot(df_TSLA['High'])
+    plt.plot(df_GOOG['Close'])
+    plt.show()
+    plt.show()
+    start_date='2018-05-21'
+    end_date  ='2018-05-26'
+    dates=pd.date_range(start_date,end_date)
+    print("dates=",dates)
+    print("date[0]=",dates[0])
+    df_DATES = pd.DataFrame(index=dates)
+
+    print ("df_dates=")
+    print (df_DATES)
+
+    # print ("df_join=")
+    # df_j1 = df_TSLA.join(df_GOOG)
+    # print (df_j1)
+
+    print ("df_join=")
+    df_j2 = df_DATES.join(df_TSLA)
+    df_j2  = df_j2.dropna()
+    print (df_j2)
+
+
+
 def softmax(z):
     assert len(z.shape) == 2
     s = np.max(z, axis=1)
@@ -336,45 +367,42 @@ class Agent:
         return states_buy, states_sell, total_gains, invest
 
 
-
-
-df = pd.read_csv('TSLA.csv')
-plt.plot(df['Close'])
-plt.show()
-
-
-@app.route('/', methods = ['GET'])
-def hello():
-    return jsonify({'status': 'OK'})
-
-
-@app.route('/inventory', methods = ['GET'])
-def inventory():
-    return jsonify(agent._inventory)
-
-
-@app.route('/queue', methods = ['GET'])
-def queue():
-    return jsonify(agent._queue)
-
-
-@app.route('/balance', methods = ['GET'])
-def balance():
-    return jsonify(agent._capital)
-
-
-@app.route('/trade', methods = ['GET'])
-def trade():
-    data = json.loads(request.args.get('data'))
-    return jsonify(agent.trade(data))
-
-
-@app.route('/reset', methods = ['GET'])
-def reset():
-    money = json.loads(request.args.get('money'))
-    agent.reset_capital(money)
-    return jsonify(True)
-
+#
+#
+#
+# @app.route('/', methods = ['GET'])
+# def hello():
+#     return jsonify({'status': 'OK'})
+#
+#
+# @app.route('/inventory', methods = ['GET'])
+# def inventory():
+#     return jsonify(agent._inventory)
+#
+#
+# @app.route('/queue', methods = ['GET'])
+# def queue():
+#     return jsonify(agent._queue)
+#
+#
+# @app.route('/balance', methods = ['GET'])
+# def balance():
+#     return jsonify(agent._capital)
+#
+#
+# @app.route('/trade', methods = ['GET'])
+# def trade():
+#     data = json.loads(request.args.get('data'))
+#     return jsonify(agent.trade(data))
+#
+#
+# @app.route('/reset', methods = ['GET'])
+# def reset():
+#     money = json.loads(request.args.get('money'))
+#     agent.reset_capital(money)
+#     return jsonify(True)
+#
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0', port = 8005)
+    # app.run(host = '0.0.0.0', port = 8005)
+    test_run()
